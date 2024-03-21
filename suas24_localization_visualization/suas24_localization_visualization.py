@@ -21,55 +21,54 @@ class LocalizationVisualization(Node):
 
         plt.ion() #enables interatctive mode
         plt.show()
-        array = np.array([[255, 0],
-                         [0, 255]], dtype=np.uint8)
- 
         self.n_objects = 5
-        self.drop_points = np.zeros((self.n_objects, 300, 300))
 
         self.fig, self.axx = plt.subplots(3, 2)
-        self.axx[0, 0].imshow(self.drop_points[0])
+        for ax_row in self.axx:
+            for ax in ax_row:
+                x_min, x_max = -8, 8
+                y_min, y_max = -40, 40
+                ax.set_xlim(x_min, x_max)
+                ax.set_ylim(y_min, y_max)
         
 
-        #plt.imshow(self.drop_points[0])
         plt.draw()
         plt.pause(0.01)
 
+    def compute_tuple(self, n):
+        return [(0,0),(0,1),(1,0),(1,1),(2,0)][n]
 
     def listener_callback(self, msg):
-        data = msg.data
-        index = data[0]
-        x = data[1]
-        y = data[2]
-        #z = data[3]
-        conf = data[4]
-
-        axx_row = index // 2
-        axx_col = 0 if index % 2 == 0 else 1
-
-        #intervals for the points such that the point becomes larger (visible)
-        x_min = max(0, x - 5) 
-        x_max = min(300, x + 5)
-        y_min = max(0, y - 5)
-        y_max = min(300, y + 5)
-
-        #don't ask...
-        x_min = min(x_min, x_max - 1)
-        x_max = max(x_max, x_min + 1)
-        y_min = min(y_min, y_max - 1)
-        y_max = max(y_max, y_min + 1)
-
-        self.drop_points[index][x_min:x_max, y_min:y_max] = 255
-
-        self.axx[axx_row, axx_col].imshow(self.drop_points[index])
-
-
-        #plt.imshow(array)
+        assert (len(msg.data)%4 == 0)
+        data = np.reshape(msg.data, (5,4))
+        data = data.astype(np.float32)/100
+        index = np.argmax(data[:, 3])
+        # print(data)
+        # print(index)
+        axx_row, axx_col = self.compute_tuple(index)
+        self.axx[axx_row, axx_col].scatter(data[0, index], data[1, index])
         plt.draw()
         plt.pause(0.01)
 
-        self.get_logger().info('Logged : "%s"' % data)
-        self.get_logger().info(f"sum: {np.sum(self.drop_points[index])}")
+        # data = msg.data
+        # index = data[0]
+        # x = data[1]/100
+        # y = data[2]/100
+        # #z = data[3]
+        # conf = data[4]/100
+        #
+        # #intervals for the points such that the point becomes larger (visible)
+        # axx_row, axx_col = self.compute_tuple(index)
+        # MAGIC = 0.3
+        # if (conf >= MAGIC):
+        #     self.axx[axx_row, axx_col].scatter(x, y)
+        #
+        # #plt.imshow(array)
+        # plt.draw()
+        # plt.pause(0.01)
+        #
+        # # self.get_logger().info('Logged : "%s"' % data)
+        # # self.get_logger().info(f"sum: {np.sum(self.drop_points[index])}")
         
 
 def main(args=None):
