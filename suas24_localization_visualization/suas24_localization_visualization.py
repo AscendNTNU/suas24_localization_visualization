@@ -19,31 +19,58 @@ class LocalizationVisualization(Node):
             10)
         self.subscription
 
-        plt.ion()
+        plt.ion() #enables interatctive mode
         plt.show()
         array = np.array([[255, 0],
                          [0, 255]], dtype=np.uint8)
-        plt.imshow(array)
+ 
+        self.n_objects = 5
+        self.drop_points = np.zeros((self.n_objects, 300, 300))
+
+        self.fig, self.axx = plt.subplots(3, 2)
+        self.axx[0, 0].imshow(self.drop_points[0])
+        
+
+        #plt.imshow(self.drop_points[0])
         plt.draw()
         plt.pause(0.01)
 
 
     def listener_callback(self, msg):
-        layout = msg.layout
         data = msg.data
         index = data[0]
         x = data[1]
         y = data[2]
-        z = data[3]
+        #z = data[3]
         conf = data[4]
-        array = np.array([[0, 255],
-                         [255, 0]], dtype=np.uint8)
-        plt.imshow(array)
+
+        axx_row = index // 2
+        axx_col = 0 if index % 2 == 0 else 1
+
+        #intervals for the points such that the point becomes larger (visible)
+        x_min = max(0, x - 5) 
+        x_max = min(300, x + 5)
+        y_min = max(0, y - 5)
+        y_max = min(300, y + 5)
+
+        #don't ask...
+        x_min = min(x_min, x_max - 1)
+        x_max = max(x_max, x_min + 1)
+        y_min = min(y_min, y_max - 1)
+        y_max = max(y_max, y_min + 1)
+
+        self.drop_points[index][x_min:x_max, y_min:y_max] = 255
+
+        self.axx[axx_row, axx_col].imshow(self.drop_points[index])
+
+
+        #plt.imshow(array)
         plt.draw()
         plt.pause(0.01)
 
         self.get_logger().info('Logged : "%s"' % data)
-        self.get_logger().info(f"value: {data[1]}")
+        self.get_logger().info(f"sum: {np.sum(self.drop_points[index])}")
+        
 
 def main(args=None):
     rclpy.init(args=args)
