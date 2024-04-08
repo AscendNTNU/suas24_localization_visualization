@@ -30,9 +30,7 @@ def create_heatmap(img):
     
     img = img.astype(np.float32)
 
-    print(f"SUM: {np.sum(img)}")
     heatmap = cv2.sepFilter2D(img, -1, kernel, kernel)
-    print(f"SUM AFTER HEATMAP: {np.sum(heatmap)}")
     return heatmap
 
 class LocalizationVisualization(Node):
@@ -53,10 +51,9 @@ class LocalizationVisualization(Node):
 
         self.drop_points = np.zeros((self.n_objects, 20, 20))
         
-        self.fig, self.axx = plt.subplots(3, 2)
-        self.axx[0, 0].imshow(self.drop_points[0])
+        #self.fig, self.axx = plt.subplots(3, 2, figsize=(15, 15))
+        #self.axx[0, 0].imshow(self.drop_points[0])
         
-
         plt.draw()
         plt.pause(0.01)
 
@@ -66,24 +63,29 @@ class LocalizationVisualization(Node):
         images = msg.images
         self.get_logger().info("Heigth: %s" % images[0].height)
         for idx, object in enumerate(images):
-            #self.get_logger().info("Received image: %s" % image)
-            img = sensormsg_to_numpy(object) 
+            result = sensormsg_to_numpy(object)
+            draw_image = result[0] #boolean representing if the image size is large enough to be displayed
+            img = result[1] 
+            #self.get_logger().info("Received image: %s" % str(idx) + ", " + str())
 
-            if img[0]:
-                print(img[1].shape)
+            if draw_image:
+                print(img.shape)
 
-                heatmap = create_heatmap(img[1])
+                #heatmap = create_heatmap(img[1])
 
                 axx_row = idx // 2
                 axx_col = 0 if idx % 2 == 0 else 1
 
-                self.axx[axx_row, axx_col].imshow(heatmap)
+                #self.axx[axx_row, axx_col].imshow(img)
+                plt.imshow(img)
                 plt.draw()
                 plt.pause(0.01)
 
                 if idx == 1:
-                    cv2.imwrite("/home/ascend/repos/mono24/normal.png", img[1])
-                    cv2.imwrite("/home/ascend/repos/mono24/heatmap.png", heatmap)
+                    cv2.imwrite("/home/ascend/repos/mono24/normal.png", img)
+                    #cv2.imwrite("/home/ascend/repos/mono24/heatmap.png", heatmap)
+            break
+            
                 
 
         self.get_logger().info("Drawed!")
