@@ -19,6 +19,7 @@ def sensormsg_to_numpy(msg):
     """
     if msg.height <= 1:
         return (False, False)
+    
 
     img = np.frombuffer(msg.data, dtype=np.uint8).reshape((msg.height, msg.width)) #simply a grey scale image
     return (True, img)
@@ -63,6 +64,7 @@ class LocalizationVisualization(Node):
         images = msg.images
         self.get_logger().info("Heigth: %s" % images[0].height)
         for idx, object in enumerate(images):
+            #self.get_logger().info("MSG: %s" % object)
             result = sensormsg_to_numpy(object)
             draw_image = result[0] #boolean representing if the image size is large enough to be displayed
             img = result[1] 
@@ -76,7 +78,7 @@ class LocalizationVisualization(Node):
                 axx_row = idx // 2
                 axx_col = 0 if idx % 2 == 0 else 1
 
-                #self.axx[axx_row, axx_col].imshow(img)
+         #       self.axx[axx_row, axx_col].imshow(img)
                 plt.imshow(img)
                 plt.draw()
                 plt.pause(0.01)
@@ -84,7 +86,7 @@ class LocalizationVisualization(Node):
                 if idx == 1:
                     cv2.imwrite("/home/ascend/repos/mono24/normal.png", img)
                     #cv2.imwrite("/home/ascend/repos/mono24/heatmap.png", heatmap)
-            break
+        
             
                 
 

@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'suas24_localization_visualization = suas24_localization_visualization.suas24_localization_visualization:main'
+            'suas24_localization_visualization = suas24_localization_visualization.suas24_localization_visualization:main',
+            'suas24_path_visualization = suas24_localization_visualization.suas24_path_visualization:main'
         ],
     },
 )
