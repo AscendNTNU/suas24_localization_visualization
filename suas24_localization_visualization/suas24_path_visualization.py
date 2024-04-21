@@ -51,6 +51,9 @@ class PathVisualization(Node):
         if len(self.camera_xs):
             self.ax.plot(self.camera_xs + [self.camera_xs[0]], self.camera_ys + [self.camera_ys[0]])
 
+        if len(self.camera_xs):
+            self.ax.scatter(self.camera_xs, self.camera_ys, c=self.camera_c)
+
         self.ax.plot(self.drone_xs, self.drone_ys, color="#5555FF")
 
         for det_x, det_y, drone_x, drone_y in self.detections:
